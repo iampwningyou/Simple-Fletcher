@@ -18,9 +18,11 @@ public class Fletch extends Task<ClientContext>{
 
 	@Override
 	public boolean activate() {
+		Component fletchingProgress = ctx.widgets.component(1251, 9);
 		return ctx.backpack.select().id(ItemIds.LOG).count() > 0
 				&& ctx.players.local().animation() == -1
-				&& !ctx.bank.opened();
+				&& !ctx.bank.opened()
+				&& !fletchingProgress.visible();
 	}
 
 	@Override
@@ -30,7 +32,22 @@ public class Fletch extends Task<ClientContext>{
 		Item log = ctx.backpack.select().id(ItemIds.LOG).shuffle().poll();
 		log.interact("Craft");
 		
+		Condition.sleep(200);
+		
 		final Component craftWindow = ctx.widgets.component(1371, 0);
+		if (!craftWindow.visible()) {
+			final Component toolWindow = ctx.widgets.component(1179, 33);
+			Condition.wait(new Callable<Boolean>() {
+				
+				public Boolean call() throws Exception {
+					return toolWindow.visible();
+				}
+			}, Random.getDelay(), 10);
+
+			final Component fletchOption = toolWindow.component(1);
+			fletchOption.click();
+		}
+		
 		Condition.wait(new Callable<Boolean>() {
 			
 			public Boolean call() throws Exception {
@@ -46,7 +63,7 @@ public class Fletch extends Task<ClientContext>{
 		Component fletchButton = ctx.widgets.component(1370, 38);
 		fletchButton.click();
 		
-		Condition.sleep(Random.getDelay());
+		Condition.sleep(Random.nextInt(1000, 2000));
 	}
 
 }
