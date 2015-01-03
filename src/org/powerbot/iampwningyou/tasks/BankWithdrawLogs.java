@@ -32,11 +32,11 @@ public class BankWithdrawLogs extends Task<ClientContext> {
 			
 //			Used for ETC
 			SimpleFletcher.logsInBank = ctx.bank.itemAt(index).stackSize();
+			SimpleFletcher.setBeginningLogCount(ctx.bank.itemAt(index).stackSize());
 		}
 		
-		Condition.sleep(Random.getDelay());
 		
-		ctx.bank.close();
+		Condition.sleep(Random.getDelay());
 	}
 
 }
