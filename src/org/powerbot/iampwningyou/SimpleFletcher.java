@@ -6,6 +6,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.swing.JComboBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+
+import org.omg.CORBA.CTX_RESTRICT_SCOPE;
+import org.powerbot.bot.rt6.client.Constants;
 import org.powerbot.iampwningyou.tasks.BankDepositEverything;
 import org.powerbot.iampwningyou.tasks.BankWithdrawLogs;
 import org.powerbot.iampwningyou.tasks.CloseBank;
@@ -17,6 +23,8 @@ import org.powerbot.script.PaintListener;
 import org.powerbot.script.PollingScript;
 import org.powerbot.script.Script.Manifest;
 import org.powerbot.script.rt6.ClientContext;
+import org.powerbot.script.rt6.Component;
+import org.powerbot.script.rt6.Skills;
 
 @Manifest(name="Simple Fletcher", description="Fletches Unfinished Bows.")
 public class SimpleFletcher extends PollingScript<ClientContext> implements PaintListener {
@@ -26,14 +34,22 @@ public class SimpleFletcher extends PollingScript<ClientContext> implements Pain
 	private static int beginningLogCount = -1;
 	public static String task = "";
 	
+	@SuppressWarnings("unchecked")
 	public SimpleFletcher() {
 		taskList.addAll(Arrays.asList(new BankWithdrawLogs(ctx), 
 				new BankDepositEverything(ctx), 
 				new Fletch(ctx),
 				new OpenBank(ctx), 
 				new CloseBank(ctx)));
+		
+		javax.swing.SwingUtilities.invokeLater(new Runnable() {
+			
+			public void run() {
+				createAndShowGUI(ctx);
+			}
+		});
 	}
-
+	
 	@Override
 	public void poll() {
 		for (Task<ClientContext> task : taskList) {
@@ -52,6 +68,42 @@ public class SimpleFletcher extends PollingScript<ClientContext> implements Pain
 		_ctx.controller.stop();
 	}
 	
+	private static void createAndShowGUI(ClientContext _ctx) {
+		JFrame frame = new JFrame("Simple Fletcher");
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		
+		JComboBox<String> logTypes = new JComboBox<String>(new String[] {
+				"Normal Wood",
+				"Achey",
+				"Oak",
+				"Willow", 
+				"Teak",
+				"Maple",
+				"Mahogany",
+				"Yew",
+				"Magic",
+				"Blisterwood",
+				"Elder"
+		});
+		frame.getContentPane().add(logTypes);
+		
+//		1371 51 0 = current category text
+//		1371 62 has the category selection
+		
+//		1370 54 might give texture to match up later.
+//		1370 56 gives title
+		
+//		Take a look at the child index. that will probably be most
+//		useful.
+		
+//		Check the exp to see which selection is the best
+//		Make it as dynamic as possible.
+		
+//		Component shortBow = ctx.widgets.component(1371, 44).component(5);
+		frame.pack();
+		frame.setVisible(true);
+	}
+	
 //	An estimate of the height of a single character.
 	private static final int STR_HEIGHT = 16;
 //	An estimate of the width of a single character.
@@ -67,7 +119,6 @@ public class SimpleFletcher extends PollingScript<ClientContext> implements Pain
 //		Calculating values for status
 		double secondRuntime = ctx.controller.script().getTotalRuntime()/1000;
 		double minuteRuntime = secondRuntime/60;
-		double hourRuntime = minuteRuntime / 60;
 		
 		int fletches = beginningLogCount - logsInBank;
 		int fletchesPerMinute = (int) (fletches/minuteRuntime);
